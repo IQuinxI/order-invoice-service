@@ -11,7 +11,7 @@
 // // This class will load test data when launching the program
 // @Configuration
 // public class LoadDatabase {
-    
+
 //     @Bean
 //     CommandLineRunner load(InvoiceRepository invoiceRespository) {
 //         return args -> {
@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
-
 @Configuration
 public class LoadDatabase {
     @Bean
@@ -46,13 +44,14 @@ public class LoadDatabase {
         return args -> {
             Invoice invoice = new Invoice(null, 1l, new Date(), 100, null, null);
             InvoiceItems invoiceItems = new InvoiceItems(null, 1l, 1l,
-             200l, 3d, null, null);
-            
-            invoice.setInvoiceItems(new ArrayList<InvoiceItems>());
+                    200l, 3d, null, null);
+
+            invoice.setInvoiceItems(new ArrayList<InvoiceItems>(List.of(invoiceItems)));
+
             invoiceRepository.save(invoice);
 
             invoiceItemsRepository.save(invoiceItems);
-           
+
         };
     }
 }
