@@ -1,6 +1,5 @@
 package ma.dev.orderinvoiceservice.service;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import ma.dev.orderinvoiceservice.dto.OrderLineItemDto;
 import ma.dev.orderinvoiceservice.dto.OrderRequest;
