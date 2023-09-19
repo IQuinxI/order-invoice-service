@@ -22,12 +22,12 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long invoiceId;
 
-    private Long clientId;
+
 
     private Date invoiceDate;
 
     private int totalAmount;
-
+    private Long clientId;
     @OneToMany(mappedBy = "invoice")
     private Collection<InvoiceItems> invoiceItems;
 
