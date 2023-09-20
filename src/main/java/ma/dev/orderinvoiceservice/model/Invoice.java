@@ -21,16 +21,11 @@ public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long invoiceId;
-
-
-
     private Date invoiceDate;
-
     private int totalAmount;
     private Long clientId;
     @OneToMany(mappedBy = "invoice")
     private Collection<InvoiceItems> invoiceItems;
-
     @Transient
     private Client client;
 }

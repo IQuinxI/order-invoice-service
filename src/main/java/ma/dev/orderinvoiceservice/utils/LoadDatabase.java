@@ -42,7 +42,7 @@ public class LoadDatabase {
     @Bean
     CommandLineRunner load(InvoiceRepository invoiceRepository, InvoiceItemsRepository invoiceItemsRepository) {
         return args -> {
-            Invoice invoice = new Invoice(null, 1l, new Date(), 100, null, null);
+            Invoice invoice = new Invoice(null, new Date(), 100, 1l, new ArrayList<>(), null);
             InvoiceItems invoiceItems = new InvoiceItems(null, 1l, 1l,
                     200l, 3d, null, null);
 
