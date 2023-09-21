@@ -28,25 +28,25 @@ public class InvoiceController {
 
     @GetMapping("/invoices/{id}")
     Invoice getInvoice(@PathVariable(name = "id") Long id) {
-        Invoice invoice = invoiceRespository.findById(id).get();
+        // Invoice invoice = invoiceRespository.findById(id).get();
         
-        // get Client from clients-service
-        // and load it into the response
-        Long clientId = invoice.getClientId();
-        invoice.setClient(customerServiceClient.findClientById(clientId));
+        // // get Client from clients-service
+        // // and load it into the response
+        // Long clientId = invoice.getClientId();
+        // invoice.setClient(customerServiceClient.findClientById(clientId));
         
-        // Load all invoiceItems into invoice
-        invoice.setInvoiceItems(invoiceItemsRepository.findByInvoiceId(id));
+        // // Load all invoiceItems into invoice
+        // invoice.setInvoiceItems(invoiceItemsRepository.findByInvoiceId(id));
 
 
-        // get invoiceItems from products-service
-        // and loads them into the response
-        invoice.getInvoiceItems().forEach(invoiceItem -> {
-            Long productId = invoiceItem.getProductId();
-            invoiceItem.setProduct(productServiceClient.findProductById(productId));
-        });
-
-        return invoice;
+        // // get invoiceItems from products-service
+        // // and loads them into the response
+        // invoice.getInvoiceItems().forEach(invoiceItem -> {
+        //     Long productId = invoiceItem.getProductId();
+        //     invoiceItem.setProduct(productServiceClient.findProductById(productId));
+        // });
+        
+        return new Invoice();
     }
 
     @GetMapping("/my-profile")

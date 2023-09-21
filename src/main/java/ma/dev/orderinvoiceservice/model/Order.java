@@ -1,24 +1,28 @@
 package ma.dev.orderinvoiceservice.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
+
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "t_orders")
-
+// @Builder
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String orderNumber;
     @OneToMany(cascade = CascadeType.ALL)
+    // @Builder.Default
     private List<OrderLineItem> orderLineItemsList;
-
-
+    @ManyToOne
+    private Invoice invoiceId;
+    private Long clientId;
 }

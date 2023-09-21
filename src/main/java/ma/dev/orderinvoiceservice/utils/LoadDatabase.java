@@ -29,29 +29,39 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import ma.dev.orderinvoiceservice.model.Invoice;
-import ma.dev.orderinvoiceservice.model.InvoiceItems;
-import ma.dev.orderinvoiceservice.repository.InvoiceItemsRepository;
-import ma.dev.orderinvoiceservice.repository.InvoiceRepository;
+import ma.dev.orderinvoiceservice.model.OrderLineItem;
+import ma.dev.orderinvoiceservice.repository.OrderRepository;
+import ma.dev.orderinvoiceservice.service.InvoiceService;
+import ma.dev.orderinvoiceservice.service.OrderLineItemService;
+import ma.dev.orderinvoiceservice.service.OrderService;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Configuration
 public class LoadDatabase {
     @Bean
-    CommandLineRunner load(InvoiceRepository invoiceRepository, InvoiceItemsRepository invoiceItemsRepository) {
+    CommandLineRunner load(InvoiceService invoiceService, OrderService orderService, 
+        OrderLineItemService orderLineItemService, OrderRepository orderRepository) {
         return args -> {
-            Invoice invoice = new Invoice(null, new Date(), 100, 1l, new ArrayList<>(), null);
-            InvoiceItems invoiceItems = new InvoiceItems(null, 1l, 1l,
-                    200l, 3d, null, null);
 
-            invoice.setInvoiceItems(new ArrayList<InvoiceItems>(List.of(invoiceItems)));
+            System.out.println(invoiceService.addInvoice(LocalDateTime.now().plusDays(10))); 
 
-            invoiceRepository.save(invoice);
+            System.out.println(orderService.addOrder(new ArrayList<>(), 1L,null));
 
-            invoiceItemsRepository.save(invoiceItems);
+            // System.out.println(orderService.findOrder(1L));
+            // System.out.println(orderLineItemService.addOrderItem(orderRepository.findById(1L).get(), 1L,
+            //      120,BigDecimal.valueOf(120.50)));
+            // orderLineItemService.addOrderItem(null, null, 0, null)
 
+            // order.getOrderLineItemsList().add(orderLineItem);
+
+            // orderLineItemRepository.save(orderLineItem);
+            // // orderRepository.save(order);
+            // orderLineItemRepository.findAll().forEach(System.out::println);
+            // orderRepository.findAll().forEach(System.out::println);
         };
     }
 }
