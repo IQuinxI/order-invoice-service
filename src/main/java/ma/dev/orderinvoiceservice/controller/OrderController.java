@@ -1,41 +1,31 @@
 package ma.dev.orderinvoiceservice.controller;
 
-
-import lombok.RequiredArgsConstructor;
-import ma.dev.orderinvoiceservice.dto.OrderRequest;
-import ma.dev.orderinvoiceservice.model.Order;
-import ma.dev.orderinvoiceservice.model.OrderLineItem;
-import ma.dev.orderinvoiceservice.service.OrderLineItemService;
-import ma.dev.orderinvoiceservice.service.OrderService;
-
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 
-@RestController
-@RequiredArgsConstructor
-public class OrderController {
+import ma.dev.orderinvoiceservice.model.Invoice;
+import ma.dev.orderinvoiceservice.model.Order;
+import ma.dev.orderinvoiceservice.model.OrderLineItem;
 
-    private final OrderService orderService;
-    
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public String placeOrder(@RequestBody OrderRequest orderRequest){
-        orderService.placeOrder(orderRequest);
-        return "order is created";
-    }
+/**
+ * OrderController
+ */
+public interface OrderController {
 
-    @GetMapping("/orders")
-    public List<Order> getOrders() {
-        
-        return orderService.getOrders();
-    }
+    public CollectionModel<EntityModel<Order>> getOrders();
 
-    @PostMapping("/orders/{id}/item")
-    public Order addItemToOrder(@PathVariable("id") Long id, @RequestBody OrderLineItem orderItem) {
-        return orderService.addOrderItem(id, orderItem);
-    }
-    
-    
+    public EntityModel<Order> getOrder(Long id);
+
+    public ResponseEntity<?> addOrder(Order order);
+
+    public ResponseEntity<?> deleteOrder(Long id);
+
+    public ResponseEntity<?> replaceOrder(Long id, Order newOrder);
+
+    public ResponseEntity<?> addOrderItem(Long id, OrderLineItem orderItem);
+
+    public CollectionModel<EntityModel<OrderLineItem>> getOrderItemsByOrderId(Long id);
 }

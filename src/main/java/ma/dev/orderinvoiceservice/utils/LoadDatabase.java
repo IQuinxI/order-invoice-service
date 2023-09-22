@@ -31,9 +31,9 @@ import org.springframework.context.annotation.Configuration;
 import ma.dev.orderinvoiceservice.model.Invoice;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
 import ma.dev.orderinvoiceservice.repository.OrderRepository;
-import ma.dev.orderinvoiceservice.service.InvoiceService;
-import ma.dev.orderinvoiceservice.service.OrderLineItemService;
-import ma.dev.orderinvoiceservice.service.OrderService;
+import ma.dev.orderinvoiceservice.service.InvoiceServiceImpl;
+import ma.dev.orderinvoiceservice.service.OrderLineItemServiceImpl;
+import ma.dev.orderinvoiceservice.service.OrderServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -43,13 +43,13 @@ import java.util.List;
 @Configuration
 public class LoadDatabase {
     @Bean
-    CommandLineRunner load(InvoiceService invoiceService, OrderService orderService, 
-        OrderLineItemService orderLineItemService, OrderRepository orderRepository) {
+    CommandLineRunner load(InvoiceServiceImpl invoiceService, OrderServiceImpl orderService, 
+        OrderLineItemServiceImpl orderLineItemService, OrderRepository orderRepository) {
         return args -> {
 
             System.out.println(invoiceService.addInvoice(LocalDateTime.now().plusDays(10))); 
 
-            System.out.println(orderService.addOrder(new ArrayList<>(), 1L,null));
+            System.out.println(orderService.addOrder(new ArrayList<>(), null, 1L));
 
             // System.out.println(orderService.findOrder(1L));
             // System.out.println(orderLineItemService.addOrderItem(orderRepository.findById(1L).get(), 1L,

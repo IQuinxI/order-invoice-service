@@ -19,9 +19,9 @@ public class OrderLineItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JsonIgnore
+    // @JsonIgnore
     @ManyToOne
-    private Order orderId;
+    private Order order;
     private Long productId;
     private Integer quantity;
 }

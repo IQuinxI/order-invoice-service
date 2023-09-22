@@ -2,26 +2,20 @@ package ma.dev.orderinvoiceservice.service;
 
 import java.time.LocalDateTime;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.ResponseEntity;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 
-import lombok.RequiredArgsConstructor;
 import ma.dev.orderinvoiceservice.model.Invoice;
-import ma.dev.orderinvoiceservice.repository.InvoiceRepository;
 
-@Transactional
-@RequiredArgsConstructor
-@Service
-public class InvoiceService {
-    private final InvoiceRepository invoiceRepository;
+public interface InvoiceService {
+    public CollectionModel<EntityModel<Invoice>> getInvoices();
 
-    public Invoice addInvoice(LocalDateTime dueDateTime) {
+    public ResponseEntity<?> addInvoice(LocalDateTime dueDateTime);
 
-        Invoice invoice =  Invoice.builder()
-                .creationDate(LocalDateTime.now())
-                .dueDate(dueDateTime)
-                .build();
+    public ResponseEntity<?> deleteInvoice(Long id);
 
-        return invoiceRepository.save(invoice);
-    }
+    public ResponseEntity<?> replaceInvoice(Long id, Invoice invoice);
+
+    public EntityModel<Invoice> getInvoice(Long id);
 }

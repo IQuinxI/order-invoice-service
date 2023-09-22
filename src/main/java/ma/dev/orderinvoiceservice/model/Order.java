@@ -8,19 +8,23 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "t_orders")
-// @Builder
+@NamedEntityGraph(name = "Order.orderLineItemsList", 
+    attributeNodes = @NamedAttributeNode("orderLineItemsList"))
+@Builder
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String orderNumber;
-    @OneToMany(cascade = CascadeType.ALL)
-    // @Builder.Default
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderLineItem> orderLineItemsList;
     @ManyToOne
     private Invoice invoiceId;
