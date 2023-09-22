@@ -1,19 +1,14 @@
 package ma.dev.orderinvoiceservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import ma.dev.orderinvoiceservice.dto.OrderRequest;
 import ma.dev.orderinvoiceservice.model.Order;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
-import ma.dev.orderinvoiceservice.repository.OrderLineItemRepository;
-import ma.dev.orderinvoiceservice.repository.OrderRepository;
 import ma.dev.orderinvoiceservice.service.OrderLineItemServiceImpl;
 import ma.dev.orderinvoiceservice.service.OrderServiceImpl;
 
-import java.util.List;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class OrderControllerImpl implements OrderController {
 
     private final OrderServiceImpl orderService;
-    private final OrderRepository orderRepository;
     private final OrderLineItemServiceImpl orderLineItemServiceImpl;
-    private final OrderLineItemRepository orderItems;
 
     @GetMapping
     @Override
@@ -39,22 +32,23 @@ public class OrderControllerImpl implements OrderController {
         return orderService.getOrder(id);
     }
 
+    @PostMapping
     @Override
-    public ResponseEntity<?> addOrder(Order order) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addOrder'");
+    public ResponseEntity<?> addOrder(@RequestBody Order order) {
+        return orderService.addOrder(order.getOrderLineItemsList(),
+            order.getInvoiceId(),order.getClientId());
     }
 
+    @DeleteMapping("/{id}")
     @Override
-    public ResponseEntity<?> deleteOrder(Long id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteOrder'");
+    public ResponseEntity<?> deleteOrder(@PathVariable("id") Long id) {
+        return orderService.deleteOrder(id);
     }
 
+    @PutMapping("/{id}")
     @Override
-    public ResponseEntity<?> replaceOrder(Long id, Order newOrder) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'replaceOrder'");
+    public ResponseEntity<?> replaceOrder(@PathVariable("id") Long id, @RequestBody Order newOrder) {
+        return orderService.replaceOrder(id, newOrder.getOrderLineItemsList(), newOrder.getInvoiceId(), newOrder.getClientId());
     }
 
     @PutMapping("items/{id}")
@@ -78,16 +72,5 @@ public class OrderControllerImpl implements OrderController {
     public CollectionModel<EntityModel<OrderLineItem>> getOrderItemsByOrderId(@PathVariable("id") Long id) {
        return orderService.getOrderItemsByOrderId(id);
     }
-    // @GetMapping("/orders")
-    // public List<Order> getOrders() {
-
-    // return orderService.getOrders();
-    // }
-
-    // @PostMapping("/orders/{id}/item")
-    // public Order addItemToOrder(@PathVariable("id") Long id, @RequestBody
-    // OrderLineItem orderItem) {
-    // return orderService.addOrderItem(id, orderItem);
-    // }
 
 }

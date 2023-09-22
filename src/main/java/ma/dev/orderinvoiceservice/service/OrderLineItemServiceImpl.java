@@ -15,6 +15,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import lombok.RequiredArgsConstructor;
 import ma.dev.orderinvoiceservice.assemblers.OrderItemAssembler;
 import ma.dev.orderinvoiceservice.controller.OrderControllerImpl;
+import ma.dev.orderinvoiceservice.controller.clients.ProductServiceClient;
+import ma.dev.orderinvoiceservice.exceptions.RequestNotValidException;
 import ma.dev.orderinvoiceservice.model.Order;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
 import ma.dev.orderinvoiceservice.repository.OrderLineItemRepository;
@@ -25,7 +27,17 @@ import ma.dev.orderinvoiceservice.repository.OrderLineItemRepository;
 public class OrderLineItemServiceImpl {
     private final OrderLineItemRepository orderLineItemRepository;
     private final OrderItemAssembler assembler;
-    public OrderLineItem addOrderItem(Order order, Long productId, int quantity) {
+    private final ProductServiceClient productServiceClient;
+
+    public OrderLineItem addOrderItem(Order order, Long productId, Integer quantity) {
+        try {
+            Integer.valueOf(quantity);
+        } catch (Exception e) {
+            throw new RequestNotValidException();
+        }
+        if ((quantity == 0) || productId == null)
+            throw new RequestNotValidException();
+
         OrderLineItem orderLineItem = OrderLineItem.builder()
                 .order(order)
                 .productId(productId)
@@ -36,11 +48,19 @@ public class OrderLineItemServiceImpl {
     }
 
     public OrderLineItem getOrderLineItem(Long id) {
+        // OrderLineItem orderLineItem = orderLineItemRepository.findById(id)
+        //     .orElseThrow(() -> new OrderItemNotFoundException()); 
+            
+
         return orderLineItemRepository.findById(id).get();
     }
 
     public List<OrderLineItem> getOrderItemByOrder(Order order) {
-        return orderLineItemRepository.findByOrder(order);
+        List<OrderLineItem> orderItem = orderLineItemRepository.findByOrder(order);
+        orderItem.forEach(oi -> {
+                oi.setProduct(productServiceClient.findProductById(oi.getProductId()));
+            });
+        return orderItem;
     }
 
     public CollectionModel<EntityModel<OrderLineItem>> getAllItems() {
@@ -49,9 +69,9 @@ public class OrderLineItemServiceImpl {
                 .collect(Collectors.toList());
 
         return CollectionModel.of(orders,
-            linkTo(methodOn(OrderControllerImpl.class).getItems()).withSelfRel());
+                linkTo(methodOn(OrderControllerImpl.class).getItems()).withSelfRel());
     }
     // public List<OrderLineItem> getOrderLineItemByOrderId(Long id) {
-    //     return orderLineItemRepository.findByOrderId(id);
+    // return orderLineItemRepository.findByOrderId(id);
     // }
 }

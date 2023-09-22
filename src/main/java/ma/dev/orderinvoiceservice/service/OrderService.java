@@ -22,7 +22,7 @@ public interface OrderService {
 
     public ResponseEntity<?> deleteOrder(Long id);
 
-    public ResponseEntity<?> replaceOrder(Long id, Order newOrder);
+    public ResponseEntity<?> replaceOrder(Long id, List<OrderLineItem> orderLineItems, Invoice invoice, Long clientId);
 
     public ResponseEntity<?> addOrderItem(Long id, OrderLineItem orderItem);
 

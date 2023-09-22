@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -19,9 +20,10 @@ public class OrderLineItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // @JsonIgnore
     @ManyToOne
     private Order order;
     private Long productId;
     private Integer quantity;
+    @Transient
+    private Product product;
 }

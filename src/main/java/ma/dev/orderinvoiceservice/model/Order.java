@@ -29,4 +29,8 @@ public class Order {
     @ManyToOne
     private Invoice invoiceId;
     private Long clientId;
+    @Transient
+    private Client client;
+
+
 }

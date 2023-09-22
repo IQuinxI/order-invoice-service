@@ -1,12 +1,10 @@
 package ma.dev.orderinvoiceservice.controller;
 
-import java.util.List;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 
-import ma.dev.orderinvoiceservice.model.Invoice;
 import ma.dev.orderinvoiceservice.model.Order;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
 

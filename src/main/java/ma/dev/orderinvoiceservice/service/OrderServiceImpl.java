@@ -3,15 +3,12 @@ package ma.dev.orderinvoiceservice.service;
 import lombok.RequiredArgsConstructor;
 import ma.dev.orderinvoiceservice.assemblers.OrderAssembler;
 import ma.dev.orderinvoiceservice.assemblers.OrderItemAssembler;
-import ma.dev.orderinvoiceservice.controller.OrderController;
 import ma.dev.orderinvoiceservice.controller.OrderControllerImpl;
-import ma.dev.orderinvoiceservice.dto.OrderLineItemDto;
-import ma.dev.orderinvoiceservice.dto.OrderRequest;
 import ma.dev.orderinvoiceservice.exceptions.OrderNotFoundException;
+import ma.dev.orderinvoiceservice.exceptions.RequestNotValidException;
 import ma.dev.orderinvoiceservice.model.Invoice;
 import ma.dev.orderinvoiceservice.model.Order;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
-import ma.dev.orderinvoiceservice.repository.OrderLineItemRepository;
 import ma.dev.orderinvoiceservice.repository.OrderRepository;
 
 import org.springframework.hateoas.CollectionModel;
@@ -19,20 +16,18 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(propagation = Propagation.REQUIRED, readOnly = true, noRollbackFor = Exception.class)
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -99,7 +94,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> addOrder(List<OrderLineItem> orderLineItems, Invoice invoice, Long clientId) {
+        if(clientId == null)
+            throw new RequestNotValidException();
+
         Order order = Order.builder()
+                .orderNumber(UUID.randomUUID().toString())
                 .orderLineItemsList(orderLineItems)
                 .invoiceId(invoice)
                 .clientId(clientId)
@@ -114,15 +113,30 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> deleteOrder(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteOrder'");
+        orderRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<?> replaceOrder(Long id, Order newOrder) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'replaceOrder'");
-    }
+    public ResponseEntity<?> replaceOrder(Long id, List<OrderLineItem> orderLineItems, Invoice invoice, Long clientId) {
+        if(clientId == null)
+            throw new RequestNotValidException();
+
+        Order updatedOrder = orderRepository.findById(id)
+                .map(ord -> {
+                    ord.setClientId(clientId);
+                    ord.setInvoiceId(invoice);
+                    ord.setOrderLineItemsList(orderLineItems);
+                    return orderRepository.save(ord);
+                })
+                .orElseThrow(() -> new OrderNotFoundException(id));
+        
+        EntityModel<Order> entityModel = orderAssembler.toModel(updatedOrder);
+
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
+    }   
 
     @Override
     public CollectionModel<EntityModel<Order>> getOrders() {
@@ -135,6 +149,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> addOrderItem(Long id, OrderLineItem orderItem) {
+        if(orderItem == null)
+            throw new RequestNotValidException();
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
