@@ -1,6 +1,5 @@
 package ma.dev.orderinvoiceservice.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import ma.dev.orderinvoiceservice.assemblers.OrderItemAssembler;
 import ma.dev.orderinvoiceservice.controller.OrderControllerImpl;
 import ma.dev.orderinvoiceservice.controller.clients.ProductServiceClient;
+import ma.dev.orderinvoiceservice.exceptions.OrderItemNotFoundException;
 import ma.dev.orderinvoiceservice.exceptions.RequestNotValidException;
 import ma.dev.orderinvoiceservice.model.Order;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
@@ -48,11 +48,13 @@ public class OrderLineItemServiceImpl {
     }
 
     public OrderLineItem getOrderLineItem(Long id) {
-        // OrderLineItem orderLineItem = orderLineItemRepository.findById(id)
-        //     .orElseThrow(() -> new OrderItemNotFoundException()); 
-            
+        OrderLineItem orderLineItem = orderLineItemRepository.findById(id)
+            .orElseThrow(() -> new OrderItemNotFoundException(id)); 
+        
+        // Binds a product to the response from the product service using FeignClient
+        orderLineItem.setProduct(productServiceClient.findProductById(orderLineItem.getProductId()));
 
-        return orderLineItemRepository.findById(id).get();
+        return orderLineItem;
     }
 
     public List<OrderLineItem> getOrderItemByOrder(Order order) {
@@ -71,7 +73,4 @@ public class OrderLineItemServiceImpl {
         return CollectionModel.of(orders,
                 linkTo(methodOn(OrderControllerImpl.class).getItems()).withSelfRel());
     }
-    // public List<OrderLineItem> getOrderLineItemByOrderId(Long id) {
-    // return orderLineItemRepository.findByOrderId(id);
-    // }
 }

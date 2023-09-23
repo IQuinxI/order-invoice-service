@@ -62,10 +62,10 @@ public class OrderControllerImpl implements OrderController {
         return orderLineItemServiceImpl.getAllItems();
     }
 
-    @GetMapping("/eager/{id}")
-    public CollectionModel<EntityModel<Order>> getOrdersEager(@PathVariable("id") Long id) {
-        return orderService.getOrderEager(id);
-    }
+    // @GetMapping("/eager/{id}")
+    // public CollectionModel<EntityModel<Order>> getOrdersEager(@PathVariable("id") Long id) {
+    //     return orderService.getOrderEager(id);
+    // }
 
     @GetMapping("/items/{id}")
     @Override

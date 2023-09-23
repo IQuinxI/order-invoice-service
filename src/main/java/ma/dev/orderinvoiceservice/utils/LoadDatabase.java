@@ -1,27 +1,4 @@
-// package ma.dev.orderinvoiceservice.utils;
 
-// import java.util.Date;
-
-// import org.springframework.boot.CommandLineRunner;
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
-
-// import ma.dev.orderinvoiceservice.model.Invoice;
-// import ma.dev.orderinvoiceservice.repository.InvoiceRepository;
-// // This class will load test data when launching the program
-// @Configuration
-// public class LoadDatabase {
-
-//     @Bean
-//     CommandLineRunner load(InvoiceRepository invoiceRespository) {
-//         return args -> {
-//             invoiceRespository.save(new Invoice(null, 1l, new Date(), 100, null, null));
-//             invoiceRespository.save(new Invoice(null, 2l, new Date(), 250, null, null));
-
-//             invoiceRespository.findAll().forEach(System.out::println);
-//         };
-//     }
-// }
 package ma.dev.orderinvoiceservice.utils;
 
 import org.springframework.boot.CommandLineRunner;
@@ -49,7 +26,7 @@ public class LoadDatabase {
 
             System.out.println(invoiceService.addInvoice(LocalDateTime.now().plusDays(10))); 
 
-            System.out.println(orderService.addOrder(new ArrayList<>(), null, 1L));
+            // System.out.println(orderService.addOrder(new ArrayList<>(), null, 1L));
 
             // System.out.println(orderService.findOrder(1L));
             // System.out.println(orderLineItemService.addOrderItem(orderRepository.findById(1L).get(), 1L,

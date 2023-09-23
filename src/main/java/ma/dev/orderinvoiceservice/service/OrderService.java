@@ -26,8 +26,6 @@ public interface OrderService {
 
     public ResponseEntity<?> addOrderItem(Long id, OrderLineItem orderItem);
 
-    public CollectionModel<EntityModel<Order>> getOrderEager(Long id);
-
     public CollectionModel<EntityModel<OrderLineItem>> getOrderItemsByOrderId(Long id);
 
 

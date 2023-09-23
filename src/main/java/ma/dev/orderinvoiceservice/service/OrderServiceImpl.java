@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ma.dev.orderinvoiceservice.assemblers.OrderAssembler;
 import ma.dev.orderinvoiceservice.assemblers.OrderItemAssembler;
 import ma.dev.orderinvoiceservice.controller.OrderControllerImpl;
+import ma.dev.orderinvoiceservice.controller.clients.CustomerServiceClient;
 import ma.dev.orderinvoiceservice.exceptions.OrderNotFoundException;
 import ma.dev.orderinvoiceservice.exceptions.RequestNotValidException;
 import ma.dev.orderinvoiceservice.model.Invoice;
@@ -14,9 +15,14 @@ import ma.dev.orderinvoiceservice.repository.OrderRepository;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import feign.FeignException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -34,68 +40,33 @@ public class OrderServiceImpl implements OrderService {
     private final OrderLineItemServiceImpl orderLineItemService;
     private final OrderAssembler orderAssembler;
     private final OrderItemAssembler orderItemAssembler;
-
-    // public List<Order> getOrders() {
-
-    // return orderRepository.findAll();
-    // }
-
-    // public Order addOrder(ArrayList<OrderLineItem> orderLineItems, Long clientId,
-    // Invoice invoice) {
-    // Order order = Order.builder()
-    // .id(null)
-    // .orderLineItemsList(orderLineItems)
-    // .clientId(clientId)
-    // .orderNumber(UUID.randomUUID().toString())
-    // .invoiceId(invoice)
-    // .build();
-
-    // return order;
-    // }
-
-    // public Order findOrder(Long id) {
-    // return orderRepository.findById(id).get();
-    // }
-
-    // public Order addOrderItem(Long id, OrderLineItem orderItem) {
-    // Order order = findOrder(id);
-    // orderLineItemService.addOrderItem(order, orderItem.getProductId(),
-    // orderItem.getQuantity());
-    // order.getOrderLineItemsList().add(orderItem);
-
-    // return order;
-    // }
+    private final CustomerServiceClient customerServiceClient;
 
     @Override
     public EntityModel<Order> getOrder(Long id) {
-        // Invoice invoice = invoiceRespository.findById(id).get();
-
-        // // get Client from clients-service
-        // // and load it into the response
-        // Long clientId = invoice.getClientId();
-        // invoice.setClient(customerServiceClient.findClientById(clientId));
-
-        // // Load all invoiceItems into invoice
-        // invoice.setInvoiceItems(invoiceItemsRepository.findByInvoiceId(id));
-
-        // // get invoiceItems from products-service
-        // // and loads them into the response
-        // invoice.getInvoiceItems().forEach(invoiceItem -> {
-        // Long productId = invoiceItem.getProductId();
-        // invoiceItem.setProduct(productServiceClient.findProductById(productId));
-        // });
 
         // retrieves an Order
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
-        // order.setOrderLineItemsList(orderLineItemService.getOrderLineItemByOrderId(id));
+
+        order.setClient(customerServiceClient.findClientById(order.getClientId()));
+
         return orderAssembler.toModel(order);
     }
 
     @Override
     public ResponseEntity<?> addOrder(List<OrderLineItem> orderLineItems, Invoice invoice, Long clientId) {
-        if(clientId == null)
+        if (clientId == null)
             throw new RequestNotValidException();
+            
+        try {
+            customerServiceClient.findClientById(clientId);
+        }catch(FeignException e) {
+            if(e.status() == 404) 
+                throw new ResponseStatusException(HttpStatus.valueOf(404), "Could not find the Client");
+
+        }
+        
 
         Order order = Order.builder()
                 .orderNumber(UUID.randomUUID().toString())
@@ -119,7 +90,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> replaceOrder(Long id, List<OrderLineItem> orderLineItems, Invoice invoice, Long clientId) {
-        if(clientId == null)
+        if (clientId == null)
             throw new RequestNotValidException();
 
         Order updatedOrder = orderRepository.findById(id)
@@ -130,18 +101,22 @@ public class OrderServiceImpl implements OrderService {
                     return orderRepository.save(ord);
                 })
                 .orElseThrow(() -> new OrderNotFoundException(id));
-        
+
         EntityModel<Order> entityModel = orderAssembler.toModel(updatedOrder);
 
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
-    }   
+    }
 
     @Override
     public CollectionModel<EntityModel<Order>> getOrders() {
-        List<EntityModel<Order>> orders = orderRepository.findAll().stream()
-                .map(orderAssembler::toModel)
+        List<EntityModel<Order>> orders = orderRepository.findAll()
+                .stream()
+                .map(ord -> {
+                    ord.setClient(customerServiceClient.findClientById(ord.getClientId()));
+                    return orderAssembler.toModel(ord);
+                })
                 .collect(Collectors.toList());
         return CollectionModel.of(orders,
                 linkTo(methodOn(OrderControllerImpl.class).getOrders()).withSelfRel());
@@ -149,7 +124,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> addOrderItem(Long id, OrderLineItem orderItem) {
-        if(orderItem == null)
+        if (orderItem == null)
             throw new RequestNotValidException();
 
         Order order = orderRepository.findById(id)
@@ -168,27 +143,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public CollectionModel<EntityModel<Order>> getOrderEager(Long id) {
-        List<EntityModel<Order>> orders = orderRepository.findByClientId(id).stream()
-                    .map(orderAssembler::toModel)
-                    .collect(Collectors.toList());
-        
-        return CollectionModel.of(orders,
-            linkTo(methodOn(OrderControllerImpl.class).getOrdersEager(id)).withSelfRel()
-        );
-    }
-
-    @Override
     public CollectionModel<EntityModel<OrderLineItem>> getOrderItemsByOrderId(Long id) {
         Order order = orderRepository.findById(id)
-            .orElseThrow(() -> new OrderNotFoundException(id));
+                .orElseThrow(() -> new OrderNotFoundException(id));
 
-        List<EntityModel<OrderLineItem>> orderLineItems = orderLineItemService.getOrderItemByOrder(order).stream()
-            .map(orderItemAssembler::toModel)
-            .collect(Collectors.toList());
+        List<EntityModel<OrderLineItem>> orderLineItems = orderLineItemService.getOrderItemByOrder(order)
+                .stream()
+                .map(orderItemAssembler::toModel)
+                .collect(Collectors.toList());
 
         return CollectionModel.of(orderLineItems,
-            linkTo(methodOn(OrderControllerImpl.class).getOrderItemsByOrderId(id)).withSelfRel()
-            );
+                linkTo(methodOn(OrderControllerImpl.class).getOrderItemsByOrderId(id)).withSelfRel());
     }
 }
