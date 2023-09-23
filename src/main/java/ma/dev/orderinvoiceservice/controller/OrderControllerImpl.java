@@ -3,9 +3,11 @@ package ma.dev.orderinvoiceservice.controller;
 import lombok.RequiredArgsConstructor;
 import ma.dev.orderinvoiceservice.model.Order;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
+import ma.dev.orderinvoiceservice.repository.OrderLineItemRepository;
 import ma.dev.orderinvoiceservice.service.OrderLineItemServiceImpl;
 import ma.dev.orderinvoiceservice.service.OrderServiceImpl;
 
+import java.util.List;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -19,6 +21,7 @@ public class OrderControllerImpl implements OrderController {
 
     private final OrderServiceImpl orderService;
     private final OrderLineItemServiceImpl orderLineItemServiceImpl;
+    private final OrderLineItemRepository orderLineItemRepository;
 
     @GetMapping
     @Override
@@ -62,10 +65,10 @@ public class OrderControllerImpl implements OrderController {
         return orderLineItemServiceImpl.getAllItems();
     }
 
-    // @GetMapping("/eager/{id}")
-    // public CollectionModel<EntityModel<Order>> getOrdersEager(@PathVariable("id") Long id) {
-    //     return orderService.getOrderEager(id);
-    // }
+    @GetMapping("/items/all")
+    public List<OrderLineItem> getAllItems() {
+        return orderLineItemRepository.findAll();
+    }
 
     @GetMapping("/items/{id}")
     @Override

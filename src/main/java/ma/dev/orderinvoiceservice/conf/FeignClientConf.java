@@ -9,11 +9,11 @@ import ma.dev.orderinvoiceservice.exceptions.FeignClientErrorDecoder;
 /**
  * FeignClientConf
  */
-// @Configuration
+@Configuration
 public class FeignClientConf {
 
-    // @Bean
-    // public ErrorDecoder errorDecoder() {
-    //     return new FeignClientErrorDecoder();
-    // }
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new FeignClientErrorDecoder();
+    }
 }

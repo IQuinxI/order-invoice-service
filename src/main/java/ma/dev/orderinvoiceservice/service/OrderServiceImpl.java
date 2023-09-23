@@ -131,8 +131,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
         orderLineItemService.addOrderItem(order, orderItem.getProductId(), orderItem.getQuantity());
-
-        order.getOrderLineItemsList().add(orderItem);
+        
 
         EntityModel<Order> entityModel = orderAssembler.toModel(order);
 

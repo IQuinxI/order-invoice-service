@@ -35,7 +35,7 @@ public class OrderLineItemServiceImpl {
         } catch (Exception e) {
             throw new RequestNotValidException();
         }
-        if ((quantity == 0) || productId == null)
+        if ((quantity == 0) || productId == null || order == null)
             throw new RequestNotValidException();
 
         OrderLineItem orderLineItem = OrderLineItem.builder()
