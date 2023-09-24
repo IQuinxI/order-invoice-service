@@ -13,7 +13,7 @@ import feign.codec.ErrorDecoder;
  * FeignClientErrorDecoder
  */
 public class FeignClientErrorDecoder implements ErrorDecoder {
-
+    private ErrorDecoder errorDecoder = new Default();
     @Override
     public Exception decode(String methodKey, Response response) {
         // ExceptionMessage message = null;
@@ -39,7 +39,7 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                         "Could not find the Client or Product");
             }
             default:
-                return new Exception(response.reason());
+                return errorDecoder.decode(methodKey, response);
         }
     }
 }

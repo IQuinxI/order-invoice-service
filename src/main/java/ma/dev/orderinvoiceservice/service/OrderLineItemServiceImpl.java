@@ -52,7 +52,7 @@ public class OrderLineItemServiceImpl {
             .orElseThrow(() -> new OrderItemNotFoundException(id)); 
         
         // Binds a product to the response from the product service using FeignClient
-        orderLineItem.setProduct(productServiceClient.findProductById(orderLineItem.getProductId()));
+        // orderLineItem.setProduct(productServiceClient.findProductById(orderLineItem.getProductId()));
 
         return orderLineItem;
     }
