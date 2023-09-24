@@ -1,28 +1,18 @@
 package ma.dev.orderinvoiceservice.exceptions;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.CharSet;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.CharStreams;
 
-import feign.FeignException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
-import jakarta.ws.rs.BadRequestException;
 
 /**
  * FeignClientErrorDecoder
  */
 public class FeignClientErrorDecoder implements ErrorDecoder {
-    private final ErrorDecoder errorDecoder = new Default();
 
     @Override
     public Exception decode(String methodKey, Response response) {

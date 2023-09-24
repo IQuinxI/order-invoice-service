@@ -5,17 +5,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ma.dev.orderinvoiceservice.model.Invoice;
-import ma.dev.orderinvoiceservice.model.OrderLineItem;
 import ma.dev.orderinvoiceservice.repository.OrderRepository;
 import ma.dev.orderinvoiceservice.service.InvoiceServiceImpl;
 import ma.dev.orderinvoiceservice.service.OrderLineItemServiceImpl;
 import ma.dev.orderinvoiceservice.service.OrderServiceImpl;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Configuration
 public class LoadDatabase {

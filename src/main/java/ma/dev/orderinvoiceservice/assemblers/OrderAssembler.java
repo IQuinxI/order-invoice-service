@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import ma.dev.orderinvoiceservice.controller.OrderController;
 import ma.dev.orderinvoiceservice.controller.OrderControllerImpl;
 import ma.dev.orderinvoiceservice.model.Order;
 
