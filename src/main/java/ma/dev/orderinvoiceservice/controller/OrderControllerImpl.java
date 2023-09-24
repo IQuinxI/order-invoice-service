@@ -23,18 +23,21 @@ public class OrderControllerImpl implements OrderController {
     private final OrderLineItemServiceImpl orderLineItemServiceImpl;
     private final OrderLineItemRepository orderLineItemRepository;
 
+    // get all orders
     @GetMapping
     @Override
     public CollectionModel<EntityModel<Order>> getOrders() {
         return orderService.getOrders();
     }
 
+    // get an order by id
     @GetMapping("/{id}")
     @Override
     public EntityModel<Order> getOrder(@PathVariable("id") Long id) {
         return orderService.getOrder(id);
     }
 
+    // add an order 
     @PostMapping
     @Override
     public ResponseEntity<?> addOrder(@RequestBody Order order) {
@@ -42,34 +45,35 @@ public class OrderControllerImpl implements OrderController {
             order.getInvoiceId(),order.getClientId());
     }
 
+    // delete an order
     @DeleteMapping("/{id}")
     @Override
     public ResponseEntity<?> deleteOrder(@PathVariable("id") Long id) {
         return orderService.deleteOrder(id);
     }
 
+    // replace an order
     @PutMapping("/{id}")
     @Override
     public ResponseEntity<?> replaceOrder(@PathVariable("id") Long id, @RequestBody Order newOrder) {
         return orderService.replaceOrder(id, newOrder.getOrderLineItemsList(), newOrder.getInvoiceId(), newOrder.getClientId());
     }
 
+    // add an order item to an already existing order
     @PutMapping("items/{id}")
     @Override
     public ResponseEntity<?> addOrderItem(@PathVariable("id") Long id, @RequestBody OrderLineItem orderItem) {
        return orderService.addOrderItem(id, orderItem);
     }
 
+    // get all items 
     @GetMapping("/items")
+    @Override
     public CollectionModel<EntityModel<OrderLineItem>> getItems() {
         return orderLineItemServiceImpl.getAllItems();
     }
 
-    @GetMapping("/items/all")
-    public List<OrderLineItem> getAllItems() {
-        return orderLineItemRepository.findAll();
-    }
-
+    // get all items of an order
     @GetMapping("/items/{id}")
     @Override
     public CollectionModel<EntityModel<OrderLineItem>> getOrderItemsByOrderId(@PathVariable("id") Long id) {

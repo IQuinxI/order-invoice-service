@@ -8,6 +8,8 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import feign.FeignException;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -28,6 +30,7 @@ public class OrderLineItemServiceImpl {
     private final OrderLineItemRepository orderLineItemRepository;
     private final OrderItemAssembler assembler;
     private final ProductServiceClient productServiceClient;
+    private final OrderItemAssembler orderItemAssembler;
 
     public OrderLineItem addOrderItem(Order order, Long productId, Integer quantity) {
         try {
@@ -35,9 +38,15 @@ public class OrderLineItemServiceImpl {
         } catch (Exception e) {
             throw new RequestNotValidException();
         }
+        
         if ((quantity == 0) || productId == null || order == null)
             throw new RequestNotValidException();
 
+        try {
+            productServiceClient.findProductById(productId);
+        } catch (FeignException e) {
+            throw e;
+        }
         OrderLineItem orderLineItem = OrderLineItem.builder()
                 .order(order)
                 .productId(productId)
@@ -49,20 +58,22 @@ public class OrderLineItemServiceImpl {
 
     public OrderLineItem getOrderLineItem(Long id) {
         OrderLineItem orderLineItem = orderLineItemRepository.findById(id)
-            .orElseThrow(() -> new OrderItemNotFoundException(id)); 
-        
+                .orElseThrow(() -> new OrderItemNotFoundException(id));
+
         // Binds a product to the response from the product service using FeignClient
         // orderLineItem.setProduct(productServiceClient.findProductById(orderLineItem.getProductId()));
 
         return orderLineItem;
     }
 
-    public List<OrderLineItem> getOrderItemByOrder(Order order) {
-        List<OrderLineItem> orderItem = orderLineItemRepository.findByOrder(order);
-        orderItem.forEach(oi -> {
-                oi.setProduct(productServiceClient.findProductById(oi.getProductId()));
-            });
-        return orderItem;
+    public CollectionModel<EntityModel<OrderLineItem>> getOrderItemByOrder(Order order) {
+        List<EntityModel<OrderLineItem>> orderItem = orderLineItemRepository.findByOrder(order)
+                .stream()
+                .map(orderItemAssembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(orderItem,
+                linkTo(methodOn(OrderControllerImpl.class).getOrderItemsByOrderId(order.getId())).withSelfRel());
     }
 
     public CollectionModel<EntityModel<OrderLineItem>> getAllItems() {

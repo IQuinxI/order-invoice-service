@@ -145,12 +145,6 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
-        List<EntityModel<OrderLineItem>> orderLineItems = orderLineItemService.getOrderItemByOrder(order)
-                .stream()
-                .map(orderItemAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(orderLineItems,
-                linkTo(methodOn(OrderControllerImpl.class).getOrderItemsByOrderId(id)).withSelfRel());
+        return orderLineItemService.getOrderItemByOrder(order);
     }
 }

@@ -1,9 +1,9 @@
 package ma.dev.orderinvoiceservice.controller;
 
-
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import ma.dev.orderinvoiceservice.model.Order;
 import ma.dev.orderinvoiceservice.model.OrderLineItem;
@@ -26,4 +26,8 @@ public interface OrderController {
     public ResponseEntity<?> addOrderItem(Long id, OrderLineItem orderItem);
 
     public CollectionModel<EntityModel<OrderLineItem>> getOrderItemsByOrderId(Long id);
+
+    public CollectionModel<EntityModel<OrderLineItem>> getItems();
+
+
 }

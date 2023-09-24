@@ -38,6 +38,10 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                 return new ResponseStatusException(HttpStatus.valueOf(response.status()),
                         "Could not find the Client or Product");
             }
+            case 503: {
+                return new ResponseStatusException(HttpStatus.valueOf(response.status()),
+                        "The Product or Client instance are not online");
+            }
             default:
                 return errorDecoder.decode(methodKey, response);
         }
